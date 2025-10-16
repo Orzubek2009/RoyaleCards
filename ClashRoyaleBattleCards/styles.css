@@ -1,0 +1,119 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: rgba(188, 200, 208, 0.756);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    height: 185px;
+}
+
+.card img {
+    width: 100px;
+    object-fit: cover;
+}
+
+.card h3 {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.elixir {
+    position: absolute;
+    top: 6px;
+    left: 23px;
+}
+
+.elixir img {
+    width: 25px;
+}
+
+
+.common {
+    border-radius: 25px;
+    border: 5px solid #99CCFF;
+}
+
+.rare {
+    border-radius: 25px;
+    border: 5px solid #FFCF7C;
+}
+
+.epic {
+    border-radius: 25px;
+    border: 5px solid #FF99FF;
+}
+
+.legendary {
+  position: relative;
+  border-radius: 25px;
+  z-index: 0;
+  height: 195px;
+}
+
+.legendary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  padding: 5px;
+  background: linear-gradient(270deg,#f0f 0%,#0f0 50%,#ff0 80%,#f0f 100%);
+  background-size: 300px;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: coloreffect 7s linear infinite;
+  z-index: -1;
+}
+
+
+.champion {
+  position: relative;
+  border-radius: 25px;
+  z-index: 0;
+  height: 195px;
+}
+
+.champion::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  padding: 5px;
+  background: linear-gradient(270deg,gold 0%,rgb(255, 255, 255) 50%,rgb(255, 179, 0) 80%,gold 100%);
+  background-size: 300px;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: coloreffect 7s linear infinite;
+  z-index: -1;
+}
+
+
+@keyframes coloreffect {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 300px 0;
+  }
+}
