@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Elixir Guesser - Clash Royale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #66b1ea 0%, #102c37 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-container {
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 0px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .streak-display {
+            color: #FFD700;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+
+
+        .elixir-reveal {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            display: none;
+            z-index: 10;
+        }
+
+        .elixir-reveal img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .elixir-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 10px 0;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .elixir-btn {
+            aspect-ratio: 1;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            background: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .elixir-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+            border-color: #f7931e;
+        }
+
+        .elixir-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .elixir-btn.correct {
+            background: #4CAF50;
+            color: white;
+            border-color: #45a049;
+            animation: pulse 0.6s ease;
+        }
+
+        .elixir-btn.wrong {
+            background: #f44336;
+            color: white;
+            border-color: #da190b;
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .back-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            width: 70%;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .end-screen {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .next-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+
+
+    .card {
+    background-color: rgba(209, 211, 212, 0.756);
+    margin: 0 20% 0 20%;
+}
+
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+            <h1>Elixir Guesser</h1>
+            <div class="streak-display">
+                🔥 Streak: <span id="streak">0</span>
+            </div>
+
+
+        <div class="card-display">
+            <div class="card" id="currentCard">
+                <img id="cardImage" src="" alt="">
+                <div class="elixir-reveal" id="elixirReveal">
+                    <img id="revealImage" src="" alt="">
+                </div>
+                <h3 id="cardName"></h3>
+            </div>
+        </div>
+
+        <div class="elixir-buttons" id="elixirButtons">
+            <!-- Elixir buttons will be generated by JS -->
+        </div>
+
+        <button id="backBtn" class="back-btn">⇚ Exit</button>
+    </div>
+
+    <script src="cards.js"></script>
+    <script>
+        let currentCardIndex = 0;
+        let streak = 0;
+        let gameCards = [];
+
+        // Initialize game
+        function initGame() {
+            gameCards = [...cards].sort(() => Math.random() - 0.5).slice(0, 50);
+            currentCardIndex = 0;
+            streak = 0;
+            updateStreak();
+            showCard();
+        }
+
+        // Show current card
+        function showCard() {
+            if (currentCardIndex >= gameCards.length) {
+                endGame();
+                return;
+            }
+            
+            const card = gameCards[currentCardIndex];
+            document.getElementById('cardImage').src = `https://www.noff.gg${card.icon}`;
+            document.getElementById('cardName').textContent = card.name;
+            
+            // Set rarity class for border
+            const cardElement = document.getElementById('currentCard');
+            cardElement.className = `card ${card.rarity}`;
+            
+            // Hide elixir reveal
+            document.getElementById('elixirReveal').style.display = 'none';
+            
+            createElixirButtons();
+        }
+
+        // Create elixir buttons 1-9
+        function createElixirButtons() {
+            const container = document.getElementById('elixirButtons');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'elixir-btn';
+                btn.textContent = i;
+                btn.addEventListener('click', () => handleGuess(i));
+                container.appendChild(btn);
+            }
+        }
+
+        // Handle elixir guess
+        function handleGuess(guess) {
+            const card = gameCards[currentCardIndex];
+            const buttons = document.querySelectorAll('.elixir-btn');
+            
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+            
+            let correct = false;
+            
+            buttons.forEach(btn => {
+                const btnValue = parseInt(btn.textContent);
+                if (btnValue === parseInt(card.cost)) {
+                    btn.classList.add('correct');
+                    correct = true;
+                } else if (btnValue === guess) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            if (correct) {
+                streak++;
+                updateStreak();
+                
+                setTimeout(() => {
+                    currentCardIndex++;
+                    showCard();
+                }, 1000);
+            } else {
+                streak = 0;
+                updateStreak();
+                
+                const revealImg = document.getElementById('revealImage');
+                revealImg.src = `https://www.noff.gg/clash-royale/res/img/elixir/${card.cost}.webp`;
+                document.getElementById('elixirReveal').style.display = 'block';
+            }
+        }
+
+
+        // Update streak display
+        function updateStreak() {
+            document.getElementById('streak').textContent = streak;
+        }
+
+        // End game
+        function endGame() {
+            document.querySelector('.game-container').innerHTML = `
+                <div class="end-screen">
+                    <h2>🎉 Game Complete! 🎉</h2>
+                    <p><strong>Final Streak: ${streak}</strong></p>
+                    <p>Total Cards: ${gameCards.length}</p>
+                    <button onclick="initGame()" class="next-btn">Play Again</button>
+                    <button onclick="window.location.href='index.html'" class="back-btn">Back to Cards</button>
+                </div>
+            `;
+        }
+
+        // Back to main page
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Start the game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+
+</html>
